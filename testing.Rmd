@@ -12,7 +12,41 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 suppressPackageStartupMessages(library(tidyverse))
 library(highcharter)
+```
 
+```{r}
+data <- data.frame(
+    fruit = c("apple", "banana", "orange", "pear"),
+    count = c(2, 3, 5, 4)
+    )
+
+highchart() %>%
+  hc_add_dependency(name = "modules/accessibility.js") %>%
+  hc_add_dependency(name = "modules/exporting.js") %>%
+  hc_add_dependency(name = "modules/export-data.js") %>%
+  hc_title(text = "Fruits") %>%
+  hc_xAxis(categories = data$fruit) %>%
+  hc_add_series(
+    data = data$count,
+    type = "column",
+    name = "Count"
+  ) %>%
+  hc_exporting(
+    enabled = TRUE,
+    accessibility = list(
+      enabled = TRUE
+    )
+  ) %>%
+    hc_plotOptions(
+      accessibility = list(
+        enabled = TRUE,
+        keyboardNavigation = list(enabled = TRUE)
+    )
+  )
+```
+
+
+```{r}
 # read in the data
 url <- "https://gist.githubusercontent.com/batpigandme/aeb30566f899cdcdeb6024c0344d1ae1/raw/9cbafbbc99311c04b1a675e0ebb3953692fd51b8/pop-screenreaders.csv"
 raw_dat <- read_csv(url)
