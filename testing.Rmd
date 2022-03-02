@@ -1,0 +1,145 @@
+---
+title: "testing"
+output: html_document
+date: '2022-03-02'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+suppressPackageStartupMessages(library(tidyverse))
+library(highcharter)
+
+# read in the data
+url <- "https://gist.githubusercontent.com/batpigandme/aeb30566f899cdcdeb6024c0344d1ae1/raw/9cbafbbc99311c04b1a675e0ebb3953692fd51b8/pop-screenreaders.csv"
+raw_dat <- read_csv(url)
+```
+
+```{r}
+# turn Category into ordered factor and remove inconsistent period
+sr_dat1 <- raw_dat %>%
+  mutate(Category = str_replace_all(Category, "\\.", "")) %>%
+  mutate(Category = as_factor(Category))
+```
+
+```{r}
+hc_sr_setup <- highchart() %>%
+  # add dependencies
+  hc_add_dependency(name = "modules/series-label.js") %>%
+  hc_add_dependency(name = "modules/accessibility.js") %>%
+  hc_add_dependency(name = "modules/exporting.js") %>%
+  hc_add_dependency(name = "modules/export-data.js") %>%
+  hc_chart(
+    type = "spline",
+    accessibility = list(
+        enabled = TRUE,
+        keyboardNavigation = list(enabled = TRUE),
+        linkedDescription = "Line chart demonstrating some accessibility features of Highcharts. 
+      The chart displays the most commonly used screen readers in surveys taken by WebAIM from December 2010 to September 2019. 
+      JAWS was the most used screen reader until 2019, when NVDA took over.
+      VoiceOver is the third most used screen reader, followed by Narrator.
+      ZoomText/Fusion had a surge in 2015, but usage is otherwise low.
+      The overall use of other screen readers has declined drastically the past few years."
+      ),
+    dateTimeLabelFormats = list(
+      month = list(main = "%b %Y")
+    )
+    ) %>%
+  hc_title(text = "Most common desktop screen readers") %>%
+  hc_subtitle(text = "Source: WebAIM.") %>%
+  hc_caption(text = "Line chart demonstrating some accessibility features of Highcharts. The chart displays the most commonly used screen readers in surveys taken by WebAIM from December 2010 to September 2019. JAWS was the most used screen reader until 2019, when NVDA took over. VoiceOver is the third most used screen reader, followed by Narrator. ZoomText/Fusion had a surge in 2015, but usage is otherwise low. The overall use of other screen readers has declined drastically the past few years.") %>%
+  hc_xAxis(categories = sr_dat1$Category,
+           title = list(text = "Time"),
+           accesibility = list(
+             enabled = TRUE,
+             description = "Time from December 2010 to September 2019",
+             range = "December 2010 to September 2019"
+             )
+  ) %>%
+  hc_yAxis(
+    title = list(text = "Percentage usage"),
+    accessibility = list(description = "Percentage usage")
+  ) %>%
+  hc_legend(symbolWidth = 40) %>%
+  hc_plotOptions(
+    spline = list(
+      accessibility = list(
+        enabled = TRUE,
+        keyboardNavigation = list(enabled = TRUE)
+      )
+    )
+  )
+```
+
+
+```{r}
+hc_sr_setup %>%
+  hc_xAxis(categories = sr_dat1$Category,
+           title = list(text = "Time"),
+           accesibility = list(
+             enabled = TRUE,
+             description = "Time from December 2010 to September 2019",
+             range = "December 2010 to September 2019"
+           ),
+           dateTimeLabelFormats = list(
+             month = list(main = "%b %Y")
+           )
+  ) %>%
+  hc_add_series(
+    data = sr_dat1$NVDA,
+    name = "NVDA",
+    color = "#49a65e",
+    label = list(enabled = TRUE),
+    marker = list(symbol = "circle")
+  ) %>%
+  hc_add_series(
+    data = sr_dat1$JAWS,
+    name = "JAWS",
+    color = "#5f98cf",
+    dashStyle = "ShortDashDot",
+    label = list(enabled = TRUE),
+    marker = list(symbol = "diamond")
+  ) %>%
+  hc_add_series(
+    data = sr_dat1$VoiceOver,
+    name = "VoiceOver",
+    color = "#434348",
+    dashStyle = "ShortDot",
+    label = list(enabled = TRUE),
+    marker = list(symbol = "square")
+  ) %>%
+  hc_add_series(
+    data = sr_dat1$Narrator,
+    name = "Narrator",
+    color = "#b381b3",
+    dashStyle = "Dash",
+    label = list(enabled = TRUE),
+    marker = list(symbol = "triangle")
+  ) %>%
+  hc_add_series(
+    data = sr_dat1$`ZoomText/Fusion`,
+    name = "ZoomText/Fusion",
+    color = "#b68c51",
+    dashStyle = "ShortDot",
+    label = list(enabled = TRUE),
+    marker = list(symbol = "triangle-down")
+  ) %>%
+  hc_add_series(
+    data = sr_dat1$Other,
+    name = "Other", 
+    color = "#f45b5b",
+    dashStyle = "ShortDash",
+    label = list(enabled = TRUE),
+    marker = list(symbol = "circle")
+  ) %>%
+  hc_exporting(
+    enabled = TRUE,
+    accessibility = list(
+      enabled = TRUE
+    )
+  ) %>%
+  hc_tooltip(valueSuffix = "%")
+```
