@@ -8,6 +8,11 @@ date: '2022-03-02'
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+# renv::install(tidyverse)
+# renv::install("jbkunst/highcharter@8ff41366c8c411b497b5378d27be48617360f81f", rebuild = TRUE)
+```
+
 
 ```{r}
 suppressPackageStartupMessages(library(tidyverse))
